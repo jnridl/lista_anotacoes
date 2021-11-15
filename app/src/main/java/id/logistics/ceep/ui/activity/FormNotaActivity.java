@@ -7,14 +7,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 
 import id.logistics.ceep.R;
-import id.logistics.ceep.dao.NotaDAO;
 import id.logistics.ceep.model.Nota;
 
 public class FormNotaActivity extends AppCompatActivity {
+
+    public static final String CHAVE_NOTA = "nota";
+    public static final int COD_RESULT_NOTA_CRIADA = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,23 +32,36 @@ public class FormNotaActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         
-        if(item.getItemId() == R.id.menu_form_nota_ic_salva){
+        if(ehMenuSalvaNota(item)){
 
-            EditText titulo = findViewById(R.id.formulario_nota_titulo);
-            EditText descricao = findViewById(R.id.formulario_nota_descricao);
-
-            Nota notaCriada = new Nota(titulo.getText().toString(), descricao.getText().toString());
-
-            Intent resultInsercao = new Intent();
-            resultInsercao.putExtra("nota", notaCriada);
-            setResult(2, resultInsercao);
-
+            Nota notaCriada = criaNota();
+            retornaNota(notaCriada);
             finish();
 
         }
         
         return super.onOptionsItemSelected(item);
         
+    }
+
+    private void retornaNota(Nota nota) {
+        Intent resultInsercao = new Intent();
+        resultInsercao.putExtra(CHAVE_NOTA, nota);
+        setResult(COD_RESULT_NOTA_CRIADA, resultInsercao);
+    }
+
+    @NonNull
+    private Nota criaNota() {
+
+        EditText titulo = findViewById(R.id.formulario_nota_titulo);
+        EditText descricao = findViewById(R.id.formulario_nota_descricao);
+
+        return new Nota(titulo.getText().toString(), descricao.getText().toString());
+
+    }
+
+    private boolean ehMenuSalvaNota(@NonNull MenuItem item) {
+        return item.getItemId() == R.id.menu_form_nota_ic_salva;
     }
 
 }

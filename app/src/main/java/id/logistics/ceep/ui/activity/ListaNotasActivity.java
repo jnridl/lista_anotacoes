@@ -1,5 +1,8 @@
 package id.logistics.ceep.ui.activity;
 
+import static id.logistics.ceep.ui.activity.NotaActivityContantes.CHAVE_NOTA;
+import static id.logistics.ceep.ui.activity.NotaActivityContantes.COD_REQUISAO_INSERT_NOTA;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -7,10 +10,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
 import java.util.List;
 
 import id.logistics.ceep.R;
@@ -20,8 +21,8 @@ import id.logistics.ceep.ui.recyclerview.adapter.ListaNotasAdapter;
 
 public class ListaNotasActivity extends AppCompatActivity {
 
+
     private ListaNotasAdapter adapter;
-    private List<Nota> todasNotas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,48 +30,64 @@ public class ListaNotasActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_notas);
 
-        todasNotas = notasExemplo();
+        List<Nota> todasNotas = pegaTodasNotas();
         configuraReciclerView(todasNotas);
+        botaoInsereNota();
 
+    }
+
+    private void botaoInsereNota() {
         TextView botaoInsereNota = findViewById(R.id.lista_notas_insere_nota);
         botaoInsereNota.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent iniciaFormularioNota = new Intent(ListaNotasActivity.this, FormNotaActivity.class);
-                startActivityForResult(iniciaFormularioNota, 1);
+                vaiBotaoFormActivity();
             }
         });
+    }
 
+    private void vaiBotaoFormActivity() {
+        Intent iniciaFormularioNota = new Intent(ListaNotasActivity.this, FormNotaActivity.class);
+        startActivityForResult(iniciaFormularioNota, COD_REQUISAO_INSERT_NOTA);
+    }
+
+    private List<Nota> pegaTodasNotas() {
+        NotaDAO dao = new NotaDAO();
+        List<Nota> todasNotas = dao.todos();
+        return todasNotas;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if(requestCode == 1 && resultCode == 2 & data.hasExtra("nota")){
-            Nota notaRecebida = (Nota) data.getSerializableExtra("nota");
-            new NotaDAO().insere(notaRecebida);
-            adapter.adiciona(notaRecebida);
+        if(ehResultadoComNota(requestCode, resultCode, data)){
+            Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
+            adicionaNota(notaRecebida);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void adicionaNota(Nota nota) {
+        new NotaDAO().insere(nota);
+        adapter.adiciona(nota);
     }
 
-    private List<Nota> notasExemplo() {
+    private boolean ehResultadoComNota(int requestCode, int resultCode, @Nullable Intent data) {
+        return ehCodRequestNota(requestCode) && ehCodResultNota(resultCode) & temNota(data);
+    }
 
-        NotaDAO dao = new NotaDAO();
+    private boolean temNota(@Nullable Intent data) {
+        return data.hasExtra(CHAVE_NOTA);
+    }
 
-        for(int i = 1; i <= 3; i++){
-            dao.insere(new Nota("Nota " + i, "Descrição nota " + i));
-        }
+    private boolean ehCodResultNota(int resultCode) {
+        return resultCode == 2;
+    }
 
-        return dao.todos();
-
+    private boolean ehCodRequestNota(int requestCode) {
+        return requestCode == COD_REQUISAO_INSERT_NOTA;
     }
 
     private void configuraReciclerView(List<Nota> todasNotas) {

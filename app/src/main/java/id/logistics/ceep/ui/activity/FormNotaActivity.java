@@ -1,5 +1,8 @@
 package id.logistics.ceep.ui.activity;
 
+import static id.logistics.ceep.ui.activity.NotaActivityContantes.CHAVE_NOTA;
+import static id.logistics.ceep.ui.activity.NotaActivityContantes.COD_RESULT_NOTA_CRIADA;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,9 +16,6 @@ import id.logistics.ceep.R;
 import id.logistics.ceep.model.Nota;
 
 public class FormNotaActivity extends AppCompatActivity {
-
-    public static final String CHAVE_NOTA = "nota";
-    public static final int COD_RESULT_NOTA_CRIADA = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

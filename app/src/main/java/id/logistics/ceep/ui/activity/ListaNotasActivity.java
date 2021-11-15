@@ -18,13 +18,16 @@ import id.logistics.ceep.ui.recyclerview.adapter.ListaNotasAdapter;
 
 public class ListaNotasActivity extends AppCompatActivity {
 
+    private ListaNotasAdapter adapter;
+    private List<Nota> todasNotas;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_notas);
 
-        List<Nota> todasNotas = notasExemplo();
+        todasNotas = notasExemplo();
         configuraReciclerView(todasNotas);
 
         TextView botaoInsereNota = findViewById(R.id.lista_notas_insere_nota);
@@ -43,9 +46,9 @@ public class ListaNotasActivity extends AppCompatActivity {
     protected void onResume() {
 
         NotaDAO dao = new NotaDAO();
-        List<Nota> todasNotas = dao.todos();
-        configuraReciclerView(todasNotas);
-
+        todasNotas.clear();
+        todasNotas.addAll(dao.todos());
+        adapter.notifyDataSetChanged();
         super.onResume();
 
     }
@@ -70,7 +73,8 @@ public class ListaNotasActivity extends AppCompatActivity {
     }
 
     private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
-        listaNotas.setAdapter(new ListaNotasAdapter(this, todasNotas));
+        adapter = new ListaNotasAdapter(this, todasNotas);
+        listaNotas.setAdapter(adapter);
     }
 
 }

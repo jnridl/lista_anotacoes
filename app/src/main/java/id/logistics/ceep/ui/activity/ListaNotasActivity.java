@@ -2,6 +2,7 @@ package id.logistics.ceep.ui.activity;
 
 import static id.logistics.ceep.ui.activity.NotaActivityContantes.CHAVE_NOTA;
 import static id.logistics.ceep.ui.activity.NotaActivityContantes.COD_REQUISAO_INSERT_NOTA;
+import static id.logistics.ceep.ui.activity.NotaActivityContantes.COD_RESULT_NOTA_CRIADA;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -67,12 +68,24 @@ public class ListaNotasActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
+        super.onActivityResult(requestCode, resultCode, data);
+
         if(ehResultadoComNota(requestCode, resultCode, data)){
             Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
             adicionaNota(notaRecebida);
         }
 
-        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 2 && resultCode == COD_RESULT_NOTA_CRIADA
+                && temNota(data) && data.hasExtra("posicao")){
+
+            Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
+            int posicaoRecebida = data.getIntExtra("posicao", -1);
+
+            new NotaDAO().altera(posicaoRecebida, notaRecebida);
+
+            adapter.altera(posicaoRecebida, notaRecebida);
+
+        }
 
     }
 
@@ -105,15 +118,17 @@ public class ListaNotasActivity extends AppCompatActivity {
     }
 
     private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
+
         adapter = new ListaNotasAdapter(this, todasNotas);
         listaNotas.setAdapter(adapter);
 
         adapter.setOnClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(Nota nota) {
-                Toast.makeText(ListaNotasActivity.this,
-                        nota.getTitulo(),
-                        Toast.LENGTH_SHORT).show();
+            public void onItemClick(Nota nota, int posicao) {
+                Intent abreFormComNota = new Intent(ListaNotasActivity.this, FormNotaActivity.class);
+                abreFormComNota.putExtra(CHAVE_NOTA, nota);
+                abreFormComNota.putExtra("posicao", posicao);
+                startActivityForResult(abreFormComNota, 2);
             }
         });
 

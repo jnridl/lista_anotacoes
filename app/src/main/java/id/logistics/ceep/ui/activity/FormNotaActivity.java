@@ -11,16 +11,36 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import id.logistics.ceep.R;
 import id.logistics.ceep.model.Nota;
 
 public class FormNotaActivity extends AppCompatActivity {
 
+    private int posicaoRecebida;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_nota);
+
+        Intent dadosRecebidos = getIntent();
+
+        if(dadosRecebidos.hasExtra(CHAVE_NOTA) && dadosRecebidos.hasExtra("posicao")){
+
+            Nota notaRecebida = (Nota) dadosRecebidos.getSerializableExtra(CHAVE_NOTA);
+
+            posicaoRecebida = dadosRecebidos.getIntExtra("posicao", -1);
+
+            TextView titulo = findViewById(R.id.formulario_nota_titulo);
+            titulo.setText(notaRecebida.getTitulo());
+
+            TextView descricao = findViewById(R.id.formulario_nota_descricao);
+            descricao.setText(notaRecebida.getDescricao());
+
+        }
+
     }
 
     @Override
@@ -47,6 +67,7 @@ public class FormNotaActivity extends AppCompatActivity {
     private void retornaNota(Nota nota) {
         Intent resultInsercao = new Intent();
         resultInsercao.putExtra(CHAVE_NOTA, nota);
+        resultInsercao.putExtra("posicao", posicaoRecebida);
         setResult(COD_RESULT_NOTA_CRIADA, resultInsercao);
     }
 
